@@ -1,0 +1,12 @@
+{% extends '_base.html' %} {% load static %} {% block title %} MeroRecipe {% endblock title %} {% block content %}
+
+<!-- header -->
+{% include "home/header.html" %}
+
+<!-- recipes -->
+{% include "home/show-recipes.html" %}
+
+<!-- ratings -->
+{% include "home/recipe-by-ratings.html" %}
+
+{% endblock content %}
