@@ -1,0 +1,19 @@
+<!-- recipe/recipe_list.html -->
+{% extends '_base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+
+<h1>Recipe List</h1>
+<ul class="list-group">
+    {% for recipe in recipes %}
+        <li class="list-group-item">
+            <a href="{% url 'recipe:recipe-detail' recipe.pk %}"><img src="{{ recipe.image.url }}" alt="{{recipe.recipe_name}}" width="300" height="250"></a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endif %}
+
+{% endblock content %}
+
+

@@ -1,0 +1,28 @@
+<!-- recipes/recipe_form.html -->
+{% extends '_base.html' %}
+
+    {% block title %}{% if form.instance.pk %}Update Recipe{% else %}Create New Recipe{% endif %}{% endblock title %} 
+{% block content %}
+<h1>
+    {% if request.resolver_match.url_name == 'recipe-create' %}
+        Create New Recipe
+    {% else %}
+        Update Recipe
+    {% endif %}
+</h1>
+<div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <form method="post" enctype="multipart/form-data" action="{% if recipe.id %}{% url 'recipe:recipe-update' recipe.id %}{% else %}{% url 'recipe:recipe-create' %}{% endif %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <!-- Add the IngredientFormSet and InstructionFormSet in the template -->
+
+        <input type="submit" value="Save" class="btn btn-primary">
+    </form>
+    <a href="{% url 'recipe:recipe-list' %}">Back to Recipe List</a> 
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
