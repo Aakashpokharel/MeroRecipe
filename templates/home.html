@@ -4,7 +4,40 @@
 {% include "home/header.html" %}
 
 <!-- recipes -->
-{% include "home/show-recipes.html" %}
+<!-- collection -->
+<section id = "collection" class = "py-5">
+    <div class = "container">
+        <div class = "title text-center">
+            <h2 class = "position-relative d-inline-block">Recipe Collection</h2>
+        </div>
+
+        <div class = "row g-0">
+            <div class = "d-flex flex-wrap justify-content-center mt-5 filter-button-group">
+                <button type = "button" class = "btn m-2 text-dark active-filter-btn" data-filter = "*">All</button>
+                <button type = "button" class = "btn m-2 text-dark" data-filter = ".best">Top Rated</button>
+                <button type = "button" class = "btn m-2 text-dark" data-filter = ".feat">For You</button>
+                <button type = "button" class = "btn m-2 text-dark" data-filter = ".new">My Recipes</button>
+            </div>
+
+            <div class = "collection-list mt-4 row gx-0 gy-3">
+                {% for recipe in recipes %}
+                <div class = "col-md-6 col-lg-4 col-xl-3 p-2 best">
+                    <div class = "collection-img position-relative">
+                        <a href="{% url 'recipe:recipe-detail' recipe.pk %}"><img src="{{ recipe.image.url }}" alt="{{recipe.recipe_name}}" class = "w-100"></a>
+                    </div>
+                    <div class = "text-center">
+                        <div class = "rating mt-3">
+                            <span class="text-warning">{% for _ in recipe.rating %}<i class="fas fa-star"></i>{% endfor %}</span>
+                        </div>
+                        <p class = "text-capitalize my-1">{{recipe.recipe_name}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end of collection -->
 
 <!-- ratings -->
 {% include "home/recipe-by-ratings.html" %}

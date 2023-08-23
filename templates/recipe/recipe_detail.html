@@ -1,0 +1,245 @@
+<!-- recipe/recipe_detail.html -->
+{% extends '_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}{{ recipe.recipe_name }}{% endblock title %}
+
+{% block content %}
+<h1>{{ recipe.recipe_name }}</h1>
+    <p>Description: {{ recipe.description }}</p>
+    <p>Cuisine: {{ recipe.cuisine }}</p>
+    <p>Cooking Time: {{ recipe.cooking_time }}</p>
+    <p>Difficulty Level: {{ recipe.difficulty_level }}</p>
+
+    <img src="{{ recipe.image.url }}" alt="{{ recipe.recipe_name }}" width="300">
+    <h2>Ingredients:</h2>
+    <ul>
+        {% for ingredient in recipe.ingredients.splitlines %}
+            <li>{{ ingredient }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Instructions:</h2>
+    <ol>
+        {% for instruction in recipe.instructions.splitlines %}
+            <li>{{ instruction }}</li>
+        {% endfor %}
+    </ol>
+    <p>Created By: {{ created_by.username }}</p>
+
+<!-- Display the Rating Form -->
+{% if rating %}
+  <!-- Display Average Rating (if available) -->
+  <h2>Reviews({{review_count}}):</h2>
+  <p>Average Rating:{{ average_rating|floatformat:1 }}
+   <span class="text-warning">
+       {% for _ in full_stars|get_range %}
+           <i class="fas fa-star"></i>
+       {% endfor %}
+       {% if half_star > 0 %}
+           <i class="fas fa-star-half-alt"></i>
+       {% endif %}
+   </span>
+  </p>
+
+
+<!-- Display User's Rating Data -->
+{% for rating in recipe.rating_set.all %}
+   {% if rating.user == user %}
+       <h2>Your Rating</h2>
+       <p>{{ rating.user.username }}|{{ rating.created_at|date:"F d, Y"}}|{{ rating.created_at|time:"g:i A"}}</p>
+       <p>Your Rating: <span class="text-warning">{% for _ in rating.rating|get_range %}<i class="fas fa-star"></i>{% endfor %}</span></p>
+       <p>Your Review: {{ rating.review }}</p>
+       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateRecipeModal">
+        Update Recipe
+    </button>
+    <!--For Update-->
+<!-- Modal for updating the recipe -->
+<div class="modal fade" id="updateRecipeModal" tabindex="-1" aria-labelledby="updateRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateRecipeModalLabel">Update Recipe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Your update form goes here -->
+                <form method="post" action="{% url 'recipe:update-rating' recipe.pk %}">
+                    {% csrf_token %}
+                    <!-- Add form fields here -->
+                    <!-- Display Stars for Rating -->
+                    <div class="star-rating text-warning">
+                        {% with num_stars=5 %}
+                        {% for _ in num_stars|get_range %}
+                        <label class="star" data-rating="{{ forloop.counter }}">
+                            <i class="far fa-star"></i>
+                        </label>
+                        {% endfor %}
+                        {% endwith %}
+                    </div>
+
+                    <!-- Pre-fill Rating Value -->
+                    <input type="hidden" id="rating-input" name="rating" value="{{ rating.rating }}">
+
+                    <!-- Review Textarea with Pre-filled Review -->
+                    <div>
+                        <label for="id_review">Your Review:</label><br>
+                        <textarea id="id_review" name="review" rows="4" cols="50">{{ rating.review }}</textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <a onclick="deleteRating({{ rating.pk }}, '{% url 'recipe:delete-rating' rating.pk %}');" class="btn btn-danger fa fa-trash-o">Delete</a>
+   {% endif %}
+{% endfor %}
+
+
+{% elif rating_form%}
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRecipeModal">
+    Rate Recipe
+</button>
+<!-- Add Recipe Modal -->
+<div class="modal fade" id="addRecipeModal" tabindex="-1" aria-labelledby="addRecipeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRecipeModalLabel">Rate Recipe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Your add recipe form goes here -->
+                <form method="post" action="{% url 'recipe:rate-recipe' recipe.pk %}">
+                    {% csrf_token %}
+                    <!-- Add form fields for recipe details here -->
+                    <!-- Display Stars for Rating -->
+                    <div class="star-rating text-warning">
+                        {% with num_stars=5 %}
+                            {% for _ in num_stars|get_range %}
+                                <label class="star" data-rating="{{ forloop.counter }}">
+                                    <i class="far fa-star"></i>
+                                </label>
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+
+                    <input type="hidden" id="rating-input" name="rating" value="{{ rating.rating|default:0 }}">
+
+                    <!-- Review Textarea -->
+                    <div>
+                        <label for="id_review">Your Review:</label><br>
+                        <textarea id="id_review" name="review" rows="4" cols="50">
+                            {{ rating.review|default_if_none:'' }}
+                        </textarea>
+                    </div>
+
+                    <!-- ... Other form fields ... -->
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if rating %}
+<!-- Display Other Ratings and Reviews -->
+<h2>Other Ratings and Reviews</h2>
+{% for rating in recipe.rating_set.all %}
+   {% if rating.user != user %}
+       <p>{{ rating.user.username }}|{{ rating.created_at|date:"F d, Y"}}|{{ rating.created_at|time:"g:i A"}}</p>
+       <p>Rating: <span class="text-warning">{% for _ in rating.rating|get_range %}<i class="fas fa-star"></i>{% endfor %}</span></p>
+       <p>Review: {{ rating.review }}</p>
+   {% endif %}
+{% endfor %}
+{% endif %}
+
+
+    {% if user.is_authenticated and user == created_by %}
+    <!-- Link to Update Rating -->
+    <a href="{% url 'recipe:recipe-update' recipe.pk %}">Edit Recipe</a>
+    <a href="{% url 'recipe:recipe-delete' recipe.pk %}">Delete Recipe</a>
+    {% endif %}
+    <a href="{% url 'recipe:recipe-list' %}">Back to Recipe List</a>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('.star');
+            const ratingInput = document.getElementById('rating-input');
+            let currentRating = ratingInput.value;
+    
+            stars.forEach(function(star) {
+                star.addEventListener('click', function() {
+                    const ratingValue = parseInt(star.getAttribute('data-rating'));
+                    ratingInput.value = ratingValue;
+                    currentRating = ratingValue;
+                    updateStarSelection(ratingValue);
+                });
+    
+                star.addEventListener('mouseover', function() {
+                    const ratingValue = parseInt(star.getAttribute('data-rating'));
+                    updateStarSelection(ratingValue);
+                });
+    
+                star.addEventListener('mouseout', function() {
+                    updateStarSelection(currentRating);
+                });
+            });
+    
+            function updateStarSelection(selectedRating) {
+                stars.forEach(function(star) {
+                    const starRating = parseInt(star.getAttribute('data-rating'));
+                    const starIcon = star.querySelector('i');
+    
+                    if (starRating <= selectedRating) {
+                        starIcon.classList.remove('far');
+                        starIcon.classList.add('fas');
+                    } else {
+                        starIcon.classList.remove('fas');
+                        starIcon.classList.add('far');
+                    }
+                });
+            }
+    
+            // Initialize star selection on page load
+            updateStarSelection(currentRating);
+        });
+
+        //For deleting rating
+        function deleteRating(ratingId, deleteUrl) {
+            console.log('Delete function triggered with rating ID:', ratingId);
+            if (confirm('Are you sure you want to delete this rating?')) {
+                fetch(deleteUrl, {  // Use the deleteUrl passed from the template
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rating_id: ratingId }),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Reload the page or update the content as needed
+                        location.reload();
+                    } else {
+                        // Handle error
+                        console.error('Failed to delete rating');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+
+        //for helpful
+        
+        
+    </script>
+{% endblock content %}
+
