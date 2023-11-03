@@ -4,6 +4,7 @@ from django.views.generic import CreateView, TemplateView, View
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib import auth
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
@@ -22,6 +23,10 @@ class UserView(LoginRequiredMixin, TemplateView):
     template_name = "user/user.html"
 
 
+class VendorView(LoginRequiredMixin, TemplateView):
+    template_name = "vendor/vendor.html"
+
+
 class Registration(FormView):
     template_name = "user/user_registration.html"
     form_class = RegistrationForm
@@ -38,43 +43,38 @@ class LoginView(View):
         return render(request, "login.html")
 
     def post(self, request):
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username")
+        password = request.POST.get("password")
 
         context = {
             "username": username,
         }
 
-        if username == "":
+        if not username:
             messages.error(request, "Please Enter username")
             return render(request, "login.html", context=context)
 
-        if password == "":
+        if not password:
             messages.error(request, "Please Enter Password")
             return render(request, "login.html", context=context)
 
-        user = username == username and password == password
-        if user:
-            user = auth.authenticate(username=username, password=password)
+        user = authenticate(username=username, password=password)
 
-            if user:
-                if not user.is_active and user.is_user:
-                    messages.error(request, "Please Activate Account.")
-                    return render(request, "login.html")
-                elif user.is_active and user.is_user:
-                    auth.login(request, user)
-                    messages.success(
-                        request,
-                        "Welcome, " + user.username + ". You are now logged in.",
-                    )
-                    return redirect("user-dash")
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                if user.is_vendor:
+                    return redirect(
+                        "vendor-dash"
+                    )  # Redirect vendors to vendor dashboard
+                else:
+                    return redirect("user-dash")  # Redirect users to user dashboard
             else:
-                messages.error(request, "Invalid credentials")
-                return render(request, "login.html", context=context)
-
+                messages.error(request, "Please Activate Account.")
         else:
-            messages.error(request, "Something went wrong.")
-            return render(request, "login.html", context=context)
+            messages.error(request, "Invalid credentials")
+
+        return render(request, "login.html", context=context)
 
 
 class Logout(View):

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+</head>
+<body>
+    <h1>Your Cart</h1>
+    <ul>
+        {% for item in cart_items %}
+            <li>
+                {{ item.product.name }} - Quantity: {{ item.quantity }}
+                <a href="{% url 'cart_update' item.pk %}">Update</a>
+                <a href="{% url 'cart_remove' item.pk %}">Remove</a>
+            </li>
+        {% empty %}
+            <li>Your cart is empty.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
