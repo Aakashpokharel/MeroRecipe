@@ -1,0 +1,15 @@
+{% extends "_base.html" %}
+
+{% block content %}
+  <!-- Use Bootstrap classes for styling -->
+<div class="container">
+    <h1 class="mt-5">Create/Edit Product</h1>
+    <form method="post" class="mt-4"  enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <a href="{% url 'product_list' %}" class="btn btn-secondary mt-2">Cancel</a>
+</div>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+
+{% block content %}
+  <h1>Product List</h1>
+  <ul>
+    {% for product in products %}
+      <li class="list-group-item"><a href="{% url 'product_detail' product.pk %}"><img src="{{ product.image.url }}" alt="{{product.name}}" width="300" height="250"></a></li>
+    {% empty %}
+      <li>No products available.</li>
+    {% endfor %}
+  </ul>
+  
+  <a href="{% url 'product_create' %}">Add a Product</a>
+{% endblock %}

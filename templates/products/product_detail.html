@@ -1,0 +1,17 @@
+{% extends "_base.html" %}
+
+{% block content %}
+  <h1>{{ product.name }}</h1>
+  <p>Description: {{ product.description }}</p>
+  <p>Price: Rs.{{ product.price }}</p>
+  <p>Vendor: {{ product.vendor.username }}</p>
+  <form method="post" action="{% url 'cart_add' product.id %}">
+    {% csrf_token %}
+    <button type="submit">Add to Cart</button>
+</form>
+  {% if user.is_vendor %}
+  <a href="{% url 'product_update' product.pk %}">Edit</a>
+  <a href="{% url 'product_delete' product.pk %}">Delete</a>
+  {% endif %}
+  <a href="{% url 'product_list' %}">Back to List</a>
+{% endblock %}

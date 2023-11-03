@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Remove Cart Item</title>
+</head>
+<body>
+    <h1>Remove Item from Cart</h1>
+    <p>Are you sure you want to remove this item from your cart?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Remove</button>
+        <a href="{% url 'cart_list' %}">No, Cancel</a>
+    </form>
+</body>
+</html>
