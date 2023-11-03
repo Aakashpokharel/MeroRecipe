@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # local-apps
     "accounts",
     "recipes",
+    "products",
     # ... other apps ...
     "widget_tweaks",
 ]

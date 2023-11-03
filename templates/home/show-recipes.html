@@ -1,2 +1,50 @@
-   
-    
+{% load static %}
+<!-- collection -->
+<section id="collection" class="py-5">
+    <div class="container">
+        <div class="title text-center">
+            <h2 class="position-relative d-inline-block">Recipe Collection</h2>
+        </div>
+
+        <div class="row g-0">
+
+            <div class="collection-list mt-4 row gx-0 gy-3">
+                {% for recipe in recipes %}
+                <div class="col-md-6 col-lg-4 col-xl-3 p-2 best">
+                    <div class="collection-img position-relative">
+                        <a href="{% url 'recipe:recipe-detail' recipe.pk %}">
+                            <img src="{{ recipe.image.url }}" alt="{{ recipe.recipe_name }}" class="img-fluid rounded " style="min-height: 300px; max-height: 300px; min-width: 250px; max-width: 250px;">
+                        </a>
+                    </div>
+                    <div class="text-center">
+                        <div class="rating mt-3">
+                            <span class="text-warning">
+                                {% for _ in recipe.rating %}
+                                    <i class="fas fa-star"></i>
+                                {% endfor %}
+                            </span>
+                        </div>
+                        <p class="text-capitalize my-1">{{ recipe.recipe_name }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination links -->
+            <div class="pagination mt-4">
+                {% if recipes.has_previous %}
+                    <a href="?page=1" class="page-link">&laquo; first</a>
+                    <a href="?page={{ recipes.previous_page_number }}" class="page-link">previous</a>
+                {% endif %}
+            
+                <span class="current-page">{{ recipes.number }}</span>
+            
+                {% if recipes.has_next %}
+                    <a href="?page={{ recipes.next_page_number }}" class="page-link">next</a>
+                    <a href="?page={{ recipes.paginator.num_pages }}" class="page-link">last &raquo;</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+<!-- end of collection -->

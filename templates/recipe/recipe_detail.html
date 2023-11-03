@@ -166,6 +166,46 @@
     {% endif %}
     <a href="{% url 'recipe:recipe-list' %}">Back to Recipe List</a>
 
+<!-- Display Recommended Recipes -->
+{% if recommendations %}
+<div class="container mt-5">
+    <h1 class="mb-4">Content-Based Recommendations for {{ recipe.recipe_name }}</h1>
+    <div class="row">
+        {% for recommended_recipe in recommendations %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <a href="{% url 'recipe:recipe-detail' recommended_recipe.pk %}">
+                    <img src="{{ recommended_recipe.image.url }}" class="card-img-top" style="width: 300px; height: 275px;" alt="{{ recommended_recipe.recipe_name }}">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title">{{ recommended_recipe.recipe_name }}</h5>
+                    <p class="card-text">{{ recommended_recipe.description }}</p>
+                    
+                </div>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+
+{% if not_enough_interactions %}
+<p>Not enough interactions for recommendations.</p>
+{% else %}
+<h2>Top Recipe Recommendations</h2>
+<ul>
+  {% for recipe_id, rating in top_recommendations %}
+    <li>
+      <a href="{% url 'recipe:recipe-detail' recipe_id %}">
+        Recipe ID: {{ recipe_id }} (Rating: {{ rating|floatformat:2 }})
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
